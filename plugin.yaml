@@ -1,0 +1,116 @@
+name: openssh node execution services
+rundeckPluginVersion: 1.2
+author: Alex Honor
+date: 08/14/2015
+version: 1.0
+providers:
+    - name: ssh-exec
+      service: NodeExecutor
+      title: 'openssh / executor'
+      description: Executes a openssh command on the node. Password Authentication needs sshpass installed on the rundeck server
+      plugin-type: script
+      script-interpreter: /bin/bash
+      script-file: ssh-exec.sh
+      script-args: ${node.username} ${node.hostname} ${exec.command}
+      config:
+        - name: dry_run
+          title: 'Dry run?'
+          type: Boolean
+          required: false
+          description: 'Just echo what would be done'
+        - type: Select
+          name: authentication
+          title: Authentication
+          description: Authentication SSH Type (password or privatekey). A node attribute named ssh-authentication will override this value.
+          default: password
+          values:
+          - password
+          - privatekey
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-authentication"
+        - name: ssh_key_storage_path
+          title: SSH key Storage Path
+          type: String
+          required: false
+          description: "Optional storage path for ssh-key file. Can contain property references to node attributes. A node attribute named ssh-key-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-key-storage-path"
+        - name: ssh_password_storage_path
+          title: SSH Password Storage Path
+          type: String
+          required: false
+          description: "Optional storage password path. Can contain property references to node attributes. A node attribute named ssh-password-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-password-storage-path"
+        - name: ssh_options
+          title: SSH Custom Options
+          type: String
+          required: false
+          description: "Add custom settings to SSH connection. Eg: -o ConnectTimeout=10. A node attribute named ssh-options will override this value."
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-options"  
+    - name: ssh-copier
+      service: FileCopier
+      title: 'openssh / file-copier'
+      description: Copies file to the node via scp.  Password Authentication needs sshpass installed on the rundeck server
+      plugin-type: script
+      script-interpreter: /bin/bash
+      script-file: ssh-copy.sh
+      script-args: ${node.username} ${node.hostname} ${file-copy.file}
+      config:
+        - name: dry_run
+          title: 'Dry run?'
+          type: Boolean
+          required: false
+          description: 'Just echo what would be done'
+        - type: Select
+          name: authentication
+          title: Authentication
+          description: Authentication SSH Type (password or privatekey). A node attribute named ssh-authentication will override this value.
+          default: password
+          values:
+          - password
+          - privatekey
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-authentication"
+        - name: ssh_key_storage_path
+          title: SSH key Storage Path
+          type: String
+          required: false
+          description: "Optional storage path for ssh-key file. Can contain property references to node attributes. A node attribute named ssh-key-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-key-storage-path"
+        - name: ssh_password_storage_path
+          title: SSH Password Storage Path
+          type: String
+          required: false
+          description: "Optional storage password path. Can contain property references to node attributes. A node attribute named ssh-password-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-password-storage-path"
+        - name: ssh_options
+          title: SSH Custom Options
+          type: String
+          required: false
+          description: "Add custom settings to SSH connection. Eg: -o ConnectTimeout=10. A node attribute named ssh-options will override this value."
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-options"  
