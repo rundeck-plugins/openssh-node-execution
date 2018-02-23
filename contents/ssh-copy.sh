@@ -26,9 +26,9 @@ USER=$1
 shift
 HOST=$1
 shift
-FILE=$1
 
-DIR=${RD_NODE_SCP_DIR:?"scp-dir attribute was not set for the node $RD_NODE_NAME"}
+FILE=$RD_FILE_COPY_FILE
+DIR=$RD_FILE_COPY_DESTINATION
 
 # use RD env variable from node attributes for ssh-port value, default to 22:
 PORT=${RD_NODE_SSH_PORT:-22}
@@ -84,6 +84,6 @@ fi
 #finally, execute scp but don't print to STDOUT
 $RUNSCP 1>&2 || exit $? # exit if not successful
 
-echo $DIR/$(basename $FILE) # echo remote filepath
+echo $RD_FILE_COPY_DESTINATION # echo remote filepath
 
 #done
