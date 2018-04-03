@@ -23,14 +23,14 @@ USER=$1
 shift
 HOST=$1
 shift
-CMD="$@"
+CMD="$*"
 
 # use RD env variable from node attributes for ssh-port value, default to 22:
 PORT=${RD_NODE_SSH_PORT:-22}
 
 # extract any :port from hostname
 XHOST=$(expr "$HOST" : '\(.*\):')
-if [ ! -z $XHOST ] ; then
+if [ ! -z "$XHOST" ] ; then
     PORT=${HOST#"$XHOST:"}
     #    echo "extracted port $PORT and host $XHOST from $HOST"
     HOST=$XHOST
@@ -52,19 +52,31 @@ if [[ "privatekey" == "$authentication" ]] ; then
         mkdir -p "/tmp/.ssh-exec"
         SSH_KEY_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-keyfile.$USER@$HOST.XXXXX")
         # Write the key data to a file
-        echo "$RD_CONFIG_SSH_KEY_STORAGE_PATH" > $SSH_KEY_STORAGE_PATH
+        echo "$RD_CONFIG_SSH_KEY_STORAGE_PATH" > "$SSH_KEY_STORAGE_PATH"
         SSHOPTS="$SSHOPTS -i $SSH_KEY_STORAGE_PATH"
 
         trap 'rm "$SSH_KEY_STORAGE_PATH"' EXIT
 
     fi
     RUNSSH="ssh $SSHOPTS $USER@$HOST $CMD"
+
+    ## add PASSPHRASE for key
+    if [[ -n "${RD_CONFIG_SSH_KEY_PASSPHRASE_STORAGE_PATH:-}" ]]
+    then
+        mkdir -p "/tmp/.ssh-exec"
+        SSH_KEY_PASSPHRASE_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-passfile.$USER@$HOST.XXXXX")
+        echo "$RD_CONFIG_SSH_KEY_PASSPHRASE_STORAGE_PATH" > "$SSH_KEY_PASSPHRASE_STORAGE_PATH"
+        RUNSSH="sshpass -P passphrase -f $SSH_KEY_PASSPHRASE_STORAGE_PATH ssh $SSHOPTS $USER@$HOST $CMD"
+
+        trap 'rm "$SSH_KEY_PASSPHRASE_STORAGE_PATH"' EXIT
+
+    fi
 fi
 
 if [[ "password" == "$authentication" ]] ; then
     mkdir -p "/tmp/.ssh-exec"
     SSH_PASS_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-passfile.$USER@$HOST.XXXXX")
-    echo "$RD_CONFIG_SSH_PASSWORD_STORAGE_PATH" > $SSH_PASS_STORAGE_PATH
+    echo "$RD_CONFIG_SSH_PASSWORD_STORAGE_PATH" > "$SSH_PASS_STORAGE_PATH"
     RUNSSH="sshpass -f $SSH_PASS_STORAGE_PATH ssh $SSHOPTS $USER@$HOST $CMD"
 
     trap 'rm "$SSH_PASS_STORAGE_PATH"' EXIT
@@ -73,10 +85,10 @@ fi
 
 #if ssh-test is set to "true", do a dry run
 if [[ "true" == "$RD_CONFIG_DRY_RUN" ]] ; then
-    echo "[ssh-exec]" $RUNSSH
+    echo "[ssh-exec]" "$RUNSSH"
     exit 0
 fi
 
 #finally, use exec to pass along exit code of the SSH command
-exec $RUNSSH
+$RUNSSH
 
