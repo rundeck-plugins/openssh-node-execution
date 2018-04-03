@@ -33,13 +33,26 @@ providers:
           title: SSH key Storage Path
           type: String
           required: false
-          description: "Optional storage path for ssh-key file. Can contain property references to node attributes. A node attribute named ssh-key-storage-path will override this value."
+          description: "Optional storage path for ssh-key saved on the key storage. Can contain property references to node attributes. A node attribute named ssh-key-storage-path will override this value."
           scope: Instance
           renderingOptions:
             selectionAccessor: "STORAGE_PATH"
             valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
             storage-path-root: "keys"
             instance-scope-node-attribute: "ssh-key-storage-path"
+            storage-file-meta-filter: "Rundeck-key-type=private"
+        - name: ssh_key_passphrase_storage_path
+          title: SSH key Passphrase Storage Path
+          type: String
+          required: false
+          description: "Optional storage path for ssh-key Passphrase. Can contain property references to node attributes. A node attribute named ssh-key-passphrase-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-key-passphrase-storage-path"
+            storage-file-meta-filter: "Rundeck-data-type=password"
         - name: ssh_password_storage_path
           title: SSH Password Storage Path
           type: String
@@ -51,6 +64,7 @@ providers:
             valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
             storage-path-root: "keys"
             instance-scope-node-attribute: "ssh-password-storage-path"
+            storage-file-meta-filter: "Rundeck-data-type=password"
         - name: ssh_options
           title: SSH Custom Options
           type: String
@@ -95,6 +109,19 @@ providers:
             valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
             storage-path-root: "keys"
             instance-scope-node-attribute: "ssh-key-storage-path"
+            storage-file-meta-filter: "Rundeck-key-type=private"
+        - name: ssh_key_passphrase_storage_path
+          title: SSH key Passphrase Storage Path
+          type: String
+          required: false
+          description: "Optional storage path for ssh-key Passphrase. Can contain property references to node attributes. A node attribute named ssh-key-passphrase-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-key-passphrase-storage-path"
+            storage-file-meta-filter: "Rundeck-data-type=password"
         - name: ssh_password_storage_path
           title: SSH Password Storage Path
           type: String
@@ -106,6 +133,7 @@ providers:
             valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
             storage-path-root: "keys"
             instance-scope-node-attribute: "ssh-password-storage-path"
+            storage-file-meta-filter: "Rundeck-data-type=password"
         - name: ssh_options
           title: SSH Custom Options
           type: String
