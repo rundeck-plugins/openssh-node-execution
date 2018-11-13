@@ -50,7 +50,7 @@ if [[ "privatekey" == "$authentication" ]] ; then
     elif [[ -n "${RD_CONFIG_SSH_KEY_STORAGE_PATH:-}" ]]
     then
         mkdir -p "/tmp/.ssh-exec"
-        SSH_KEY_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-keyfile.$USER@$HOST.XXXXX")
+        export SSH_KEY_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-keyfile.$USER@$HOST.XXXXX")
         # Write the key data to a file
         echo "$RD_CONFIG_SSH_KEY_STORAGE_PATH" > "$SSH_KEY_STORAGE_PATH"
         SSHOPTS="$SSHOPTS -i $SSH_KEY_STORAGE_PATH"
@@ -64,7 +64,7 @@ if [[ "privatekey" == "$authentication" ]] ; then
     if [[ -n "${RD_CONFIG_SSH_KEY_PASSPHRASE_STORAGE_PATH:-}" ]]
     then
         mkdir -p "/tmp/.ssh-exec"
-        SSH_KEY_PASSPHRASE_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-passfile.$USER@$HOST.XXXXX")
+        export SSH_KEY_PASSPHRASE_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-passfile.$USER@$HOST.XXXXX")
         echo "$RD_CONFIG_SSH_KEY_PASSPHRASE_STORAGE_PATH" > "$SSH_KEY_PASSPHRASE_STORAGE_PATH"
         RUNSSH="sshpass -P passphrase -f $SSH_KEY_PASSPHRASE_STORAGE_PATH ssh $SSHOPTS $USER@$HOST $CMD"
 
@@ -75,7 +75,7 @@ fi
 
 if [[ "password" == "$authentication" ]] ; then
     mkdir -p "/tmp/.ssh-exec"
-    SSH_PASS_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-passfile.$USER@$HOST.XXXXX")
+    export SSH_PASS_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-passfile.$USER@$HOST.XXXXX")
     echo "$RD_CONFIG_SSH_PASSWORD_STORAGE_PATH" > "$SSH_PASS_STORAGE_PATH"
     RUNSSH="sshpass -f $SSH_PASS_STORAGE_PATH ssh $SSHOPTS $USER@$HOST $CMD"
 
