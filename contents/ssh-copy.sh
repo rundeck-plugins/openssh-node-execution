@@ -46,7 +46,7 @@ SSHOPTS="-p -P $PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
 authentication=$RD_CONFIG_AUTHENTICATION
 
 
-if [[ "privatekey" == "$authentication" ]] ; then
+if [[ "privateKey" == "$authentication" ]] ; then
 
     #use ssh-keyfile node attribute from env vars
     if [[ -n "${RD_NODE_SSH_KEYFILE:-}" ]]
