@@ -53,6 +53,18 @@ if [[ -n "${RD_CONFIG_SSH_KEY_PASSPHRASE_OPTION:-}" ]] ; then
 fi
 
 
+if [[ "$RD_NODE_USERNAME" =~ \$\{(.*)\} ]]; then
+    username=${BASH_REMATCH[1]}
+    if [[ "job.username" == "$username" ]] ; then
+        USER=$RD_JOB_USERNAME
+    fi
+
+    if [[ "option.username" == "$username" ]] ; then
+        USER=$RD_OPTION_USERNAME
+    fi
+fi
+
+
 if [[ "privatekey" == "$authentication" ]] ; then
 
     #use ssh-keyfile node attribute from env vars
