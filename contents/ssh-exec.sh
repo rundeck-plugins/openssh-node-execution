@@ -41,6 +41,30 @@ SSHOPTS="-p $PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o
 
 authentication=$RD_CONFIG_AUTHENTICATION
 
+
+if [[ -n "${RD_CONFIG_SSH_PASSWORD_OPTION:-}" ]] ; then
+    option="$(sed 's/option.//g' <<<$RD_CONFIG_SSH_PASSWORD_OPTION)"
+    rd_secure_password=$(echo "RD_PRIVATE_$option" | awk '{ print toupper($0) }')
+fi
+
+if [[ -n "${RD_CONFIG_SSH_KEY_PASSPHRASE_OPTION:-}" ]] ; then
+    option="$(sed 's/option.//g' <<<$RD_CONFIG_SSH_KEY_PASSPHRASE_OPTION)"
+    rd_secure_passphrase=$(echo "RD_PRIVATE_$option" | awk '{ print toupper($0) }')
+fi
+
+
+if [[ "$RD_NODE_USERNAME" =~ \$\{(.*)\} ]]; then
+    username=${BASH_REMATCH[1]}
+    if [[ "job.username" == "$username" ]] ; then
+        USER=$RD_JOB_USERNAME
+    fi
+
+    if [[ "option.username" == "$username" ]] ; then
+        USER=$RD_OPTION_USERNAME
+    fi
+fi
+
+
 if [[ "privatekey" == "$authentication" ]] ; then
 
     #use ssh-keyfile node attribute from env vars
@@ -60,6 +84,16 @@ if [[ "privatekey" == "$authentication" ]] ; then
     fi
     RUNSSH="ssh $SSHOPTS $USER@$HOST $CMD"
 
+    if [[ -n "${!rd_secure_passphrase}" ]]; then
+        mkdir -p "/tmp/.ssh-exec"
+        SSH_KEY_PASSPHRASE_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-passfile.$USER@$HOST.XXXXX")
+        echo "${!rd_secure_passphrase}" > "$SSH_PASS_STORAGE_PATH"
+
+        RUNSSH="sshpass -P passphrase -f $SSH_KEY_PASSPHRASE_STORAGE_PATH ssh $SSHOPTS $USER@$HOST $CMD"
+
+        trap 'rm "$SSH_KEY_PASSPHRASE_STORAGE_PATH"' EXIT
+    fi
+
     ## add PASSPHRASE for key
     if [[ -n "${RD_CONFIG_SSH_KEY_PASSPHRASE_STORAGE_PATH:-}" ]]
     then
@@ -74,14 +108,20 @@ if [[ "privatekey" == "$authentication" ]] ; then
 fi
 
 if [[ "password" == "$authentication" ]] ; then
+
     mkdir -p "/tmp/.ssh-exec"
     SSH_PASS_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-passfile.$USER@$HOST.XXXXX")
-    echo "$RD_CONFIG_SSH_PASSWORD_STORAGE_PATH" > "$SSH_PASS_STORAGE_PATH"
+
+    if [[ -n "${!rd_secure_password}" ]]; then
+        echo "${!rd_secure_password}" > "$SSH_PASS_STORAGE_PATH"
+    else
+        echo "$RD_CONFIG_SSH_PASSWORD_STORAGE_PATH" > "$SSH_PASS_STORAGE_PATH"
+    fi
+
     RUNSSH="sshpass -f $SSH_PASS_STORAGE_PATH ssh $SSHOPTS $USER@$HOST $CMD"
 
     trap 'rm "$SSH_PASS_STORAGE_PATH"' EXIT
 fi
-
 
 #if ssh-test is set to "true", do a dry run
 if [[ "true" == "$RD_CONFIG_DRY_RUN" ]] ; then

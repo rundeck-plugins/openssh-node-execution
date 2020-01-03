@@ -1,8 +1,17 @@
 name: openssh node execution services
-rundeckPluginVersion: 1.2
-author: Alex Honor
-date: 08/14/2015
-version: 1.0
+rundeckPluginVersion: 2.0
+author: "@author@"
+date: "@date@"
+version: "@version@"
+url: "@url@"
+description: "OpenSSH Node Executor"
+rundeckCompatibilityVersion: "3.2.x"
+targetHostCompatibility: "all"
+license: "Apache 2.0"
+tags:
+    - script
+    - NodeExecutor
+    - FileCopier
 providers:
     - name: ssh-exec
       service: NodeExecutor
@@ -72,7 +81,23 @@ providers:
           description: "Add custom settings to SSH connection. Eg: -o ConnectTimeout=10. A node attribute named ssh-options will override this value."
           scope: Instance
           renderingOptions:
-             instance-scope-node-attribute: "ssh-options"  
+             instance-scope-node-attribute: "ssh-options"
+        - name: ssh_password_option
+          title: SSH Password with a Job Option
+          type: String
+          required: false
+          description: "Get the password form a job option (eg: `option.password`). The Job must define a Secure Remote Authentication Option to prompt the user for the password before execution. A node attribute named ssh-password-option will override this value"
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-password-option"
+        - name: ssh_key_passphrase_option
+          title: SSH Passphrase with a Job Option
+          type: String
+          required: false
+          description: "Get the passphrase form a job option (eg: `option.passphrase`). The Job must define a Secure Remote Authentication Option to prompt the user for the passphrase before execution. A node attribute named ssh-key-passphrase-option will override this value"
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-key-passphrase-option"
     - name: ssh-copier
       service: FileCopier
       title: 'openssh / file-copier'
@@ -141,4 +166,20 @@ providers:
           description: "Add custom settings to SSH connection. Eg: -o ConnectTimeout=10. A node attribute named ssh-options will override this value."
           scope: Instance
           renderingOptions:
-             instance-scope-node-attribute: "ssh-options"  
+             instance-scope-node-attribute: "ssh-options"
+        - name: ssh_password_option
+          title: SSH Password with a Job Option
+          type: String
+          required: false
+          description: "Get the password form a job option (eg: `option.password`). The Job must define a Secure Remote Authentication Option to prompt the user for the password before execution. A node attribute named ssh-password-option will override this value"
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-password-option"
+        - name: ssh_key_passphrase_option
+          title: SSH Passphrase with a Job Option
+          type: String
+          required: false
+          description: "Get the passphrase form a job option (eg: `option.passphrase`). The Job must define a Secure Remote Authentication Option to prompt the user for the passphrase before execution. A node attribute named ssh-key-passphrase-option will override this value"
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-key-passphrase-option"
