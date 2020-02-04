@@ -6,6 +6,18 @@ This plugin provides a node-executor and file-copier using OpenSSH. Use this plu
 * Password Authentication and Passphrase need `sshpass` installed on the rundeck server.
 * For passing passphrase ``sshpass`` version 1.0.6+ is needed
 
+Note: 
+
+DEB/Ubuntu Installations
+```
+# sudo apt-get install -y sshpass
+```
+
+RPM/Redhat Installations
+```
+# yum install sshpass.x86_64 -y
+```
+
 
 ## Dry run mode
 
