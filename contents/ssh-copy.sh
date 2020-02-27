@@ -88,9 +88,9 @@ if [[ "privatekey" == "$authentication" ]] ; then
     if [[ -n "${!rd_secure_passphrase}" ]]; then
         mkdir -p "/tmp/.ssh-exec"
         SSH_KEY_PASSPHRASE_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-passfile.$USER@$HOST.XXXXX")
-        echo "${!rd_secure_passphrase}" > "$SSH_PASS_STORAGE_PATH"
+        echo "${!rd_secure_passphrase}" > "$SSH_KEY_PASSPHRASE_STORAGE_PATH"
 
-        RUNSSH="sshpass -P passphrase -f $SSH_KEY_PASSPHRASE_STORAGE_PATH ssh $SSHOPTS $USER@$HOST $CMD"
+        RUNSCP="sshpass -P passphrase -f $SSH_KEY_PASSPHRASE_STORAGE_PATH scp $SSHOPTS $FILE $USER@$HOST:$DIR"
 
         trap 'rm "$SSH_KEY_PASSPHRASE_STORAGE_PATH"' EXIT
     fi
