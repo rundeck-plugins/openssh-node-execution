@@ -45,6 +45,11 @@ SSHOPTS="-p -P $PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
 
 authentication=$RD_CONFIG_AUTHENTICATION
 
+if [ "$authentication" != "privatekey" ] && [ "$authentication" != "password" ] ; then
+    echo "wrong ssh authentication type, use privatekey or password"
+    exit 1
+fi
+
 if [[ -n "${RD_CONFIG_SSH_PASSWORD_OPTION:-}" ]] ; then
     option="$(sed 's/option.//g' <<<$RD_CONFIG_SSH_PASSWORD_OPTION)"
     rd_secure_password=$(echo "RD_PRIVATE_$option" | awk '{ print toupper($0) }')
@@ -128,6 +133,13 @@ if [[ "true" == "$RD_CONFIG_DRY_RUN" ]] ; then
     echo "[ssh-copy]" "$RUNSCP"
     exit 0
 fi
+
+#clean keys and password
+unset RD_CONFIG_SSH_KEY_STORAGE_PATH
+unset RD_NODEEXECUTOR_SSH_KEY_STORAGE_PATH
+unset RD_NODEEXECUTOR_SSH_KEY_PASSPHRASE_STORAGE_PATH
+unset RD_CONFIG_SSH_PASSWORD_STORAGE_PATH
+unset RD_NODEEXECUTOR_SSH_PASSWORD_STORAGE_PATH
 
 #finally, execute scp but don't print to STDOUT
 $RUNSCP 1>&2 || exit $? # exit if not successful

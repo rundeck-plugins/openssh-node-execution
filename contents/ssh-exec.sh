@@ -38,9 +38,14 @@ fi
 
 SSHOPTS="-p $PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet $RD_CONFIG_SSH_OPTIONS"
 
-
 authentication=$RD_CONFIG_AUTHENTICATION
 
+if [ "$authentication" != "privatekey" ] && [ "$authentication" != "password" ] ; then
+    echo "wrong ssh authentication type, use privatekey or password" >&2
+    exit 1
+fi
+
+## TODO: check authetication method
 
 if [[ -n "${RD_CONFIG_SSH_PASSWORD_OPTION:-}" ]] ; then
     option="$(sed 's/option.//g' <<<$RD_CONFIG_SSH_PASSWORD_OPTION)"
@@ -128,6 +133,13 @@ if [[ "true" == "$RD_CONFIG_DRY_RUN" ]] ; then
     echo "[ssh-exec]" "$RUNSSH"
     exit 0
 fi
+
+#clean keys and password
+unset RD_CONFIG_SSH_KEY_STORAGE_PATH
+unset RD_NODEEXECUTOR_SSH_KEY_STORAGE_PATH
+unset RD_NODEEXECUTOR_SSH_KEY_PASSPHRASE_STORAGE_PATH
+unset RD_CONFIG_SSH_PASSWORD_STORAGE_PATH
+unset RD_NODEEXECUTOR_SSH_PASSWORD_STORAGE_PATH
 
 #finally, use exec to pass along exit code of the SSH command
 $RUNSSH
