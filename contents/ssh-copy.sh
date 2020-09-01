@@ -43,7 +43,7 @@ fi
 
 SSHOPTS="-p -P $PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet $RD_CONFIG_SSH_OPTIONS"
 
-authentication=$RD_CONFIG_AUTHENTICATION
+authentication=`echo "$RD_CONFIG_AUTHENTICATION" | awk '{ print tolower($1) }'`
 
 if [ "$authentication" != "privatekey" ] && [ "$authentication" != "password" ] ; then
     echo "wrong ssh authentication type, use privatekey or password"
