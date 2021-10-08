@@ -87,6 +87,18 @@ if [[ "privatekey" == "$authentication" ]] ; then
         trap 'rm "$SSH_KEY_STORAGE_PATH"' EXIT
 
     fi
+
+    if [[ "$RD_CONFIG_FORWARD_AGENT" == "true" ]] ; then
+        # Start ssh-agent
+        eval `/usr/bin/ssh-agent`
+
+        # Add our ssh key to the agent
+        ssh-add $SSH_KEY_STORAGE_PATH
+
+        # kill ssh-agent once the job is over
+        trap '/usr/bin/ssh-agent -k' EXIT
+    fi
+
     RUNSSH="ssh $SSHOPTS $USER@$HOST $CMD"
 
     if [[ -n "${!rd_secure_passphrase}" ]]; then
