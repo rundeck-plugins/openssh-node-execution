@@ -160,3 +160,10 @@ Using dynamic username from job option
        ssh-options="-o ConnectTimeout=5000"/>
 ```
 *a option called `username`  must be added to the job
+
+## Note
+This plugin could present some problems when it tries to copy a file to Windows Server nodes. 
+This is because this plugin uses scp command, and it throws some issues with Windows machines for the reason that 
+is not natively installed therefore it is necessary to add a ssh server like OpenSHH, but the result is the same (Tested on Windows Server 2019).
+Is recommended use another plugin when the remote node is a Windows OS. Here there is a good recommendation 
+https://docs.rundeck.com/docs/learning/howto/configuring-windows-nodes.html#running-jobs-on-windows-nodes
