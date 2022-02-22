@@ -160,3 +160,6 @@ Using dynamic username from job option
        ssh-options="-o ConnectTimeout=5000"/>
 ```
 *a option called `username`  must be added to the job
+
+## Note
+This plugin could present some problems when it tries to copy a file to Windows Server nodes.
