@@ -162,4 +162,7 @@ Using dynamic username from job option
 *a option called `username`  must be added to the job
 
 ## Note
-This plugin could present some problems when it tries to copy a file to Windows Server nodes.
+This plugin could present some problems when it tries to copy a file to Windows Server nodes. 
+This is because this plugin uses scp command, and it throws some issues with Windows machines.
+Is recommended use another plugin when the remote node is a Windows OS. Here there is a good recommendation 
+https://docs.rundeck.com/docs/learning/howto/configuring-windows-nodes.html#running-jobs-on-windows-nodes
