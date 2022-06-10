@@ -81,7 +81,7 @@ if [[ "privatekey" == "$authentication" ]] ; then
         mkdir -p "/tmp/.ssh-exec"
         SSH_KEY_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-keyfile.$USER@$HOST.XXXXX")
         # Write the key data to a file
-        echo "$RD_CONFIG_SSH_KEY_STORAGE_PATH" > "$SSH_KEY_STORAGE_PATH"
+        echo "$RD_CONFIG_SSH_KEY_STORAGE_PATH" | tr '\r' '\n' > "$SSH_KEY_STORAGE_PATH"
         SSHOPTS="$SSHOPTS -i $SSH_KEY_STORAGE_PATH"
 
         trap 'rm "$SSH_KEY_STORAGE_PATH"' EXIT
