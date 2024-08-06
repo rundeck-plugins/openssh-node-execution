@@ -27,6 +27,11 @@ providers:
           type: Boolean
           required: false
           description: 'Just echo what would be done'
+        - name: forward_agent
+          title: 'Forward SSH agent?'
+          type: Boolean
+          required: false
+          description: 'Start ssh-agent and forward keys'
         - type: Select
           name: authentication
           title: Authentication
