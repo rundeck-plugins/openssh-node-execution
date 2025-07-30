@@ -90,7 +90,7 @@ if [[ "privatekey" == "$authentication" ]] ; then
     fi
     RUNSCP="scp $SSHOPTS $FILE $USER@$HOST:$DIR"
 
-    if [[ -n "${!rd_secure_passphrase}" ]]; then
+    if [[ -n $rd_secure_passphrase ]] && [[ -n "${!rd_secure_passphrase}" ]]; then
         mkdir -p "/tmp/.ssh-exec"
         SSH_KEY_PASSPHRASE_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-passfile.$USER@$HOST.XXXXX")
         echo "${!rd_secure_passphrase}" > "$SSH_KEY_PASSPHRASE_STORAGE_PATH"
@@ -117,7 +117,7 @@ if [[ "password" == "$authentication" ]] ; then
     mkdir -p "/tmp/.ssh-exec"
     SSH_PASS_STORAGE_PATH=$(mktemp "/tmp/.ssh-exec/ssh-passfile.$USER@$HOST.XXXXX")
 
-    if [[ -n "${rd_secure_password}" ]]; then
+    if [[ -n $rd_secure_password ]] && [[ -n "${!rd_secure_password}" ]]; then
         echo "${rd_secure_password}" > "$SSH_PASS_STORAGE_PATH"
     else
         echo "$RD_CONFIG_SSH_PASSWORD_STORAGE_PATH" > "$SSH_PASS_STORAGE_PATH"
