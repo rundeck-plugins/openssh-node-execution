@@ -4,7 +4,7 @@ buildscript {
     }
 }
 plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.7.0'
+    id 'pl.allegro.tech.build.axion-release' version '1.18.18'
 }
 
 ext.pluginName = 'Openssh node execution services'
@@ -20,16 +20,8 @@ scmVersion {
     tag {
         prefix = ''
         versionSeparator = ''
-        def origDeserialize = deserialize
-        //apend .0 to satisfy semver if the tag version is only X.Y
-        deserialize = { config, position, tagName ->
-            def orig = origDeserialize(config, position, tagName)
-            if (orig.split('\\.').length < 3) {
-                orig += ".0"
-            }
-            orig
-        }
     }
+    versionCreator("simple")
 }
 
 project.version = scmVersion.version
