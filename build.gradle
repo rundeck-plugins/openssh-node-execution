@@ -1,5 +1,3 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
 buildscript {
     repositories {
         mavenCentral()
@@ -7,7 +5,6 @@ buildscript {
 }
 plugins {
     id 'pl.allegro.tech.build.axion-release' version '1.7.0'
-    id 'java'
 }
 
 ext.pluginName = 'Openssh node execution services'
@@ -24,6 +21,7 @@ scmVersion {
         prefix = ''
         versionSeparator = ''
         def origDeserialize = deserialize
+        //apend .0 to satisfy semver if the tag version is only X.Y
         deserialize = { config, position, tagName ->
             def orig = origDeserialize(config, position, tagName)
             if (orig.split('\\.').length < 3) {
@@ -37,82 +35,4 @@ scmVersion {
 project.version = scmVersion.version
 ext.archiveFilename = ext.archivesBaseName + '-' + version
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
-
-defaultTasks 'build'
-
-tasks.register('pluginZip', Jar) {
-    archiveBaseName.set(project.ext.archivesBaseName)
-    archiveVersion.set(project.version)
-    archiveClassifier.set('')
-    destinationDirectory.set(file("build/libs"))
-    extension = 'zip'
-
-    from("${project.buildDir}/zip-contents") {
-        include("*.yaml")
-        include("resources/**")
-        include("contents/*")
-        into("${archiveBaseName.get()}-${archiveVersion.get()}")
-    }
-
-    manifest {
-        attributes(
-                'Rundeck-Plugin-Name': pluginName.toString(),
-                'Rundeck-Plugin-Description': pluginDescription.toString(),
-                'Rundeck-Plugin-Archive': 'true',
-                'Rundeck-Plugin-File-Version': version,
-                'Rundeck-Plugin-Author': sopsCopyright,
-                'Rundeck-Plugin-URL': sopsUrl,
-                'Rundeck-Plugin-Date': buildDateString
-        )
-    }
-}
-
-tasks.named('pluginZip').configure {
-    doFirst {
-        def assetsMap = new Properties()
-        def tokens = assetsMap + [
-                version    : version,
-                date       : new Date().format("yyyy-MM-dd'T'HH:mm:ssX").toString(),
-                author     : sopsCopyright,
-                url        : sopsUrl,
-                title      : pluginName,
-                description: pluginDescription,
-                name       : archivesBaseName.toString(),
-        ]
-
-        copy {
-            from("${project.projectDir}/resources") {
-                include '**/*'
-                into "resources"
-            }
-            from("${project.projectDir}/contents") {
-                into "contents"
-            }
-            from("${project.projectDir}/plugin.yaml") {
-                filter(ReplaceTokens, tokens: tokens)
-                exclude '**/*.png'
-            }
-            into "${project.buildDir}/zip-contents"
-        }
-    }
-}
-
-apply plugin: 'maven-publish'
-
-publishing {
-    publications {
-        mavenZip(MavenPublication) {
-            artifact tasks.named('pluginZip').get()
-        }
-    }
-}
-
-defaultTasks 'clean', 'build', 'pluginZip'
-
-tasks.named('build').configure {
-    dependsOn tasks.named('pluginZip')
-}
+apply from: 'https://raw.githubusercontent.com/rundeck-plugins/build-zip/master/build.gradle'
