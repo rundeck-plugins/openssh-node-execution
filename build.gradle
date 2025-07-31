@@ -6,32 +6,31 @@ buildscript {
     }
 }
 plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.7.0'
+    id 'pl.allegro.tech.build.axion-release' version '1.18.18'
     id 'java'
 }
 
 ext.pluginName = 'Openssh node execution services'
+ext.publishName = "Openssh node execution services ${project.version}"
+ext.publishDescription = project.description ?: 'Openssh node execution services'
+ext.githubSlug = 'rundeck-plugins/openssh-node-execution'
 ext.pluginDescription = "Executes a openssh commands on the node. Password Authentication needs sshpass installed on the rundeck server"
 ext.sopsCopyright = "© 2017, Rundeck, Inc."
 ext.sopsUrl = "http://rundeck.com"
 ext.buildDateString = new Date().format("yyyy-MM-dd'T'HH:mm:ssX")
 ext.archivesBaseName = "openssh-node-execution"
 ext.pluginBaseFolder = "."
+ext.developers = [
+        [id: 'gschueler', name: 'Greg Schueler', email: 'greg@rundeck.com']
+]
 
 scmVersion {
     ignoreUncommittedChanges = true
     tag {
         prefix = ''
         versionSeparator = ''
-        def origDeserialize = deserialize
-        deserialize = { config, position, tagName ->
-            def orig = origDeserialize(config, position, tagName)
-            if (orig.split('\\.').length < 3) {
-                orig += ".0"
-            }
-            orig
-        }
     }
+    versionCreator("simple")
 }
 
 project.version = scmVersion.version
