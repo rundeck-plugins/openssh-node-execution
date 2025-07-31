@@ -107,13 +107,16 @@ tasks.named('pluginZip').configure {
 
 apply plugin: 'maven-publish'
 
-nexusPublishing {
-    packageGroup = 'org.rundeck.plugins'
+publishing {
     publications {
         mavenZip(MavenPublication) {
             artifact tasks.named('pluginZip').get()
         }
     }
+}
+
+nexusPublishing {
+    packageGroup = 'org.rundeck.plugins'
     repositories {
         sonatype {
             nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
