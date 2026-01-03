@@ -29,7 +29,7 @@ ext.developers = [
 scmVersion {
     ignoreUncommittedChanges = true
     tag {
-        prefix = ''
+        prefix = 'v'
         versionSeparator = ''
     }
     versionCreator("simple")
