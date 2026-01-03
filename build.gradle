@@ -6,7 +6,6 @@ buildscript {
     }
 }
 plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.18.18'
     id 'java'
 }
 
@@ -25,15 +24,6 @@ ext.pluginBaseFolder = "."
 ext.developers = [
         [id: 'gschueler', name: 'Greg Schueler', email: 'greg@rundeck.com']
 ]
-
-scmVersion {
-    ignoreUncommittedChanges = true
-    tag {
-        prefix = 'v'
-        versionSeparator = ''
-    }
-    versionCreator("simple")
-}
 
 // Override version for Grails 7 upgrade
 project.version = '2.0.5-grails7-upgrade-test'
