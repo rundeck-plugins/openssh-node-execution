@@ -6,22 +6,20 @@ buildscript {
     }
 }
 
+plugins {
+    id 'java'
+}
+
 repositories {
     mavenLocal()
     maven {
         name = 'Central Portal Snapshots'
         url = 'https://central.sonatype.com/repository/maven-snapshots/'
-        
-        // Only search this repository for org.rundeck snapshots
         content {
             includeGroup('org.rundeck')
         }
     }
     mavenCentral()
-}
-
-plugins {
-    id 'java'
 }
 
 group = 'com.github.rundeck-plugins'
