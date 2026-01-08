@@ -8,6 +8,8 @@ buildscript {
 
 plugins {
     id 'java'
+    id 'pl.allegro.tech.build.axion-release' version '1.17.2'
+    id 'maven-publish'
 }
 
 repositories {
@@ -22,7 +24,17 @@ repositories {
     mavenCentral()
 }
 
-group = 'com.github.rundeck-plugins'
+group = 'com.rundeck.plugins'
+
+scmVersion {
+    ignoreUncommittedChanges = false
+    tag {
+        prefix = ''           // NO "v" prefix - see PLUGIN_TAGGING_ARCHITECTURE.md
+        versionSeparator = ''
+    }
+}
+
+version = scmVersion.version  // Dynamic version from git tag
 
 ext.pluginName = 'Openssh node execution services'
 ext.publishName = "Openssh node execution services ${project.version}"
@@ -38,9 +50,7 @@ ext.developers = [
         [id: 'gschueler', name: 'Greg Schueler', email: 'greg@rundeck.com']
 ]
 
-// Override version for Grails 7 upgrade
-project.version = '2.0.9-grails7-upgrade-test'
-ext.archiveFilename = ext.archivesBaseName + '-' + version
+ext.archiveFilename = ext.archivesBaseName + '-' + project.version.toString()
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -60,7 +70,7 @@ tasks.register('pluginZip', Jar) {
         include("*.yaml")
         include("resources/**")
         include("contents/*")
-        into("${archiveBaseName.get()}-${archiveVersion.get()}")
+        into("${archiveBaseName.get()}-" + project.version.toString())
     }
 
     manifest {
@@ -68,7 +78,7 @@ tasks.register('pluginZip', Jar) {
                 'Rundeck-Plugin-Name': pluginName.toString(),
                 'Rundeck-Plugin-Description': pluginDescription.toString(),
                 'Rundeck-Plugin-Archive': 'true',
-                'Rundeck-Plugin-File-Version': version,
+                'Rundeck-Plugin-File-Version': project.version.toString(),
                 'Rundeck-Plugin-Author': sopsCopyright,
                 'Rundeck-Plugin-URL': sopsUrl,
                 'Rundeck-Plugin-Date': buildDateString
@@ -80,7 +90,7 @@ tasks.named('pluginZip').configure {
     doFirst {
         def assetsMap = new Properties()
         def tokens = assetsMap + [
-                version    : version,
+                version    : project.version.toString(),
                 date       : new Date().format("yyyy-MM-dd'T'HH:mm:ssX").toString(),
                 author     : sopsCopyright,
                 url        : sopsUrl,
@@ -106,13 +116,32 @@ tasks.named('pluginZip').configure {
     }
 }
 
-apply plugin: 'maven-publish'
-
 publishing {
     publications {
         mavenZip(MavenPublication) {
+            groupId = 'com.rundeck.plugins'
             artifactId = 'openssh-node-execution'
-            artifact tasks.named('pluginZip').get()
+            version = project.version
+            pom.packaging = 'jar'
+            
+            // Publish the pluginZip artifact (it's a JAR with .zip extension)
+            artifact(tasks.named('pluginZip').get()) {
+                extension = 'jar'  // Tell Maven it's a JAR artifact type
+            }
+        }
+    }
+    
+    repositories {
+        maven {
+            name = "PackageCloudTest"
+            url = uri("https://packagecloud.io/pagerduty/rundeckpro-test/maven2")
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+            credentials(HttpHeaderCredentials) {
+                name = "Authorization"
+                value = "Bearer " + (System.getenv("PKGCLD_WRITE_TOKEN") ?: project.findProperty("pkgcldWriteToken"))
+            }
         }
     }
 }
