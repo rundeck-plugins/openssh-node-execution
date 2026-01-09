@@ -123,9 +123,9 @@ publishing {
             artifactId = 'openssh-node-execution'
             version = project.version
             
-            // Publish the pluginZip artifact (it's a JAR with .zip extension)
+            // Publish the pluginZip artifact (it's a ZIP but Maven requires .jar extension)
             artifact(tasks.named('pluginZip').get()) {
-                extension = 'jar'  // Tell Maven it's a JAR artifact type
+                extension = 'jar'
             }
         }
     }
