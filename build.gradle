@@ -122,7 +122,6 @@ publishing {
             groupId = 'com.rundeck.plugins'
             artifactId = 'openssh-node-execution'
             version = project.version
-            pom.packaging = 'jar'
             
             // Publish the pluginZip artifact (it's a JAR with .zip extension)
             artifact(tasks.named('pluginZip').get()) {
