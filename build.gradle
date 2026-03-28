@@ -64,7 +64,7 @@ tasks.register('pluginZip', Jar) {
     archiveVersion.set(project.version)
     archiveClassifier.set('')
     destinationDirectory.set(file("build/libs"))
-    extension = 'zip'
+    archiveExtension.set('zip')
 
     from("${project.buildDir}/zip-contents") {
         include("*.yaml")
