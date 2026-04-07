@@ -5,10 +5,36 @@ buildscript {
         mavenCentral()
     }
 }
+
 plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.18.18'
     id 'java'
+    id 'pl.allegro.tech.build.axion-release' version '1.17.2'
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
 }
+
+repositories {
+    mavenLocal()
+    maven {
+        name = 'Central Portal Snapshots'
+        url = 'https://central.sonatype.com/repository/maven-snapshots/'
+        content {
+            includeGroup('org.rundeck')
+        }
+    }
+    mavenCentral()
+}
+
+group = 'org.rundeck.plugins'
+
+scmVersion {
+    ignoreUncommittedChanges = false
+    tag {
+        prefix = ''           // NO "v" prefix - see PLUGIN_TAGGING_ARCHITECTURE.md
+        versionSeparator = ''
+    }
+}
+
+version = scmVersion.version  // Dynamic version from git tag
 
 ext.pluginName = 'Openssh node execution services'
 ext.publishName = "Openssh node execution services ${project.version}"
@@ -24,21 +50,11 @@ ext.developers = [
         [id: 'gschueler', name: 'Greg Schueler', email: 'greg@rundeck.com']
 ]
 
-scmVersion {
-    ignoreUncommittedChanges = true
-    tag {
-        prefix = ''
-        versionSeparator = ''
-    }
-    versionCreator("simple")
-}
-
-project.version = scmVersion.version
-ext.archiveFilename = ext.archivesBaseName + '-' + version
+ext.archiveFilename = ext.archivesBaseName + '-' + project.version.toString()
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 defaultTasks 'build'
@@ -48,13 +64,13 @@ tasks.register('pluginZip', Jar) {
     archiveVersion.set(project.version)
     archiveClassifier.set('')
     destinationDirectory.set(file("build/libs"))
-    extension = 'zip'
+    archiveExtension.set('zip')
 
     from("${project.buildDir}/zip-contents") {
         include("*.yaml")
         include("resources/**")
         include("contents/*")
-        into("${archiveBaseName.get()}-${archiveVersion.get()}")
+        into("${archiveBaseName.get()}-" + project.version.toString())
     }
 
     manifest {
@@ -62,7 +78,7 @@ tasks.register('pluginZip', Jar) {
                 'Rundeck-Plugin-Name': pluginName.toString(),
                 'Rundeck-Plugin-Description': pluginDescription.toString(),
                 'Rundeck-Plugin-Archive': 'true',
-                'Rundeck-Plugin-File-Version': version,
+                'Rundeck-Plugin-File-Version': project.version.toString(),
                 'Rundeck-Plugin-Author': sopsCopyright,
                 'Rundeck-Plugin-URL': sopsUrl,
                 'Rundeck-Plugin-Date': buildDateString
@@ -74,7 +90,7 @@ tasks.named('pluginZip').configure {
     doFirst {
         def assetsMap = new Properties()
         def tokens = assetsMap + [
-                version    : version,
+                version    : project.version.toString(),
                 date       : new Date().format("yyyy-MM-dd'T'HH:mm:ssX").toString(),
                 author     : sopsCopyright,
                 url        : sopsUrl,
@@ -100,15 +116,17 @@ tasks.named('pluginZip').configure {
     }
 }
 
-apply plugin: 'maven-publish'
-
-publishing {
-    publications {
-        mavenZip(MavenPublication) {
-            artifact tasks.named('pluginZip').get()
+nexusPublishing {
+    packageGroup = 'org.rundeck.plugins'
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
         }
     }
 }
+
+apply from: "${rootDir}/gradle/publishing.gradle"
 
 defaultTasks 'clean', 'build', 'pluginZip'
 
