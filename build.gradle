@@ -9,7 +9,7 @@ buildscript {
 plugins {
     id 'java'
     id 'pl.allegro.tech.build.axion-release' version '1.17.2'
-    id 'maven-publish'
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
 }
 
 repositories {
@@ -24,7 +24,7 @@ repositories {
     mavenCentral()
 }
 
-group = 'com.rundeck.plugins'
+group = 'org.rundeck.plugins'
 
 scmVersion {
     ignoreUncommittedChanges = false
@@ -116,34 +116,17 @@ tasks.named('pluginZip').configure {
     }
 }
 
-publishing {
-    publications {
-        mavenZip(MavenPublication) {
-            groupId = 'com.rundeck.plugins'
-            artifactId = 'openssh-node-execution'
-            version = project.version
-            
-            // Publish the pluginZip artifact (it's a ZIP but Maven requires .jar extension)
-            artifact(tasks.named('pluginZip').get()) {
-                extension = 'jar'
-            }
-        }
-    }
-    
+nexusPublishing {
+    packageGroup = 'org.rundeck.plugins'
     repositories {
-        maven {
-            name = "PackageCloudTest"
-            url = uri("https://packagecloud.io/pagerduty/rundeckpro-test/maven2")
-            authentication {
-                header(HttpHeaderAuthentication)
-            }
-            credentials(HttpHeaderCredentials) {
-                name = "Authorization"
-                value = "Bearer " + (System.getenv("PKGCLD_WRITE_TOKEN") ?: project.findProperty("pkgcldWriteToken"))
-            }
+        sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
         }
     }
 }
+
+apply from: "${rootDir}/gradle/publishing.gradle"
 
 defaultTasks 'clean', 'build', 'pluginZip'
 

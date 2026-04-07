@@ -1,12 +1,9 @@
 /**
- * Define project extension values in the project gradle file before including this file:
+ * Zip-based Rundeck plugin publication for Maven Central (artifact uploaded as type jar).
  *
- * publishName = 'Name of Package'
- * publishDescription = 'description' (optional)
- * githubSlug = Github slug e.g. 'rundeck/rundeck-cli'
- * developers = [ [id:'id', name:'name', email: 'email' ] ] list of developers
- *
- * Define project properties to sign and publish when invoking publish task:
+ * Requires before this file:
+ *   - ext.publishName, ext.githubSlug, ext.developers
+ *   - task pluginZip
  *
  *     ./gradlew \
  *     -PsigningKey="base64 encoded gpg key" \
@@ -20,10 +17,17 @@ apply plugin: 'signing'
 
 publishing {
     publications {
-        "${project.name}"(MavenPublication) { publication ->
-            from components.java
+        mavenZip(MavenPublication) {
+            groupId = project.group.toString()
+            artifactId = 'openssh-node-execution'
+            version = project.version.toString()
+
+            artifact(tasks.named('pluginZip')) {
+                extension = 'jar'
+            }
 
             pom {
+                packaging = 'jar'
                 name = publishName
                 description = project.ext.hasProperty('publishDescription') ? project.ext.publishDescription :
                         project.description ?: publishName
@@ -52,10 +56,26 @@ publishing {
                     }
                 }
             }
-
+        }
+    }
+    repositories {
+        def pkgcldWriteToken = System.getenv("PKGCLD_WRITE_TOKEN") ?: project.findProperty("pkgcldWriteToken")
+        if (pkgcldWriteToken) {
+            maven {
+                name = "PackageCloudTest"
+                url = uri("https://packagecloud.io/pagerduty/rundeckpro-test/maven2")
+                authentication {
+                    header(HttpHeaderAuthentication)
+                }
+                credentials(HttpHeaderCredentials) {
+                    name = "Authorization"
+                    value = "Bearer " + pkgcldWriteToken
+                }
+            }
         }
     }
 }
+
 def base64Decode = { String prop ->
     project.findProperty(prop) ?
             new String(Base64.getDecoder().decode(project.findProperty(prop).toString())).trim() :
