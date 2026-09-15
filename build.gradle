@@ -8,7 +8,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'pl.allegro.tech.build.axion-release' version '1.17.2'
+    id 'pl.allegro.tech.build.axion-release' version '1.21.3'
 }
 
 repositories {
@@ -52,8 +52,8 @@ ext.developers = [
 ext.archiveFilename = ext.archivesBaseName + '-' + project.version.toString()
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 defaultTasks 'build'
